@@ -1,0 +1,211 @@
+## choose the port and host of each "server"
+
+	syntax :
+		listen <address> [<port>]
+		listen <port>
+	
+	default:
+		listen 0.0.0.0 8080
+
+	Context:
+		server
+
+	Example:
+		listen 8000
+		listen 127.0.0.1 9090
+		listen 127.0.0.1
+
+	* The first server will be the default
+	* <address> : ipv4
+
+## setup the server names
+
+	Syntax:
+		server_name <name> ...
+	
+	Default: 	
+		server_name localhost
+
+	Context:
+		server
+	
+	Example :
+    	server_name www.example.com mysite
+
+## setup default error pages
+
+	Syntax: 	
+		error_page <code> ... <uri>
+	
+	Default:
+		-
+
+	Context:
+		server, location
+
+	Example:
+		error_page 403             /403.html
+		error_page 500 502 503 504 /50x.html
+
+	* <code> : status code between 400 and 599
+	* <uri> : normalized uri			
+                      <------------uri------------->
+	http://localhost  /directory/youpi.bad_extension  ?var1=1&var2=2
+	<------------------------------url----------------------------->
+
+## limit client body size
+
+	Syntax:
+		client_max_body_size <size>
+	
+	Context:
+		server, location
+
+	Default:
+		client_max_body_size 1000000
+	
+	Default:
+		client_max_body_size 128
+
+	* <size> : bytes
+
+## setup routes
+
+	syntax:
+		location <prefix> | <ext> { 
+			...
+		}
+
+	Default:
+		-
+
+	Context:
+		server, location (with <ext> and one level)
+	
+	Example:
+		location /user/ {
+			... <- all routes begin with /user/
+		}
+				
+		location .php {
+			... <- all routes finish with .php
+
+		}
+
+		location /user {
+			...
+			location .bla {
+			... <- all routes begin with /directory and finish with .bla
+		}
+
+	* <prefix> : begin of uri (/something/something-else/ ...)
+	* <ext>: one extension (.bla, .php ...)
+
+## define a list of accepted HTTP Methods for the route
+
+	syntax:
+		limit_except <method> ...
+
+	default:
+		-
+
+	Context:
+		location
+
+	Example:
+		limit_except GET POST
+	
+	* <method> : GET POST PUT HEAD DELETE
+
+## define an HTTP redirection.
+
+	syntax: 	
+		return <code> <url>
+
+	Default: —
+
+	Context: server, location 
+
+	Example:
+		return 301 http://localhost/directory/youpi.bla?var=1
+
+	* <code> : status code between 300 and 399
+
+## define a directory or a file from where the file should be search
+
+	Syntax:
+		root <path> [alias]
+
+	Default:
+		root <user_home>/www
+
+	Context:
+		server (without alias), location
+
+	Example:
+		location /kapouet {
+   			root /tmp/www alias
+		}
+ 		/kapouet/pouic/toto/ => /tmp/www/pouic/toto/
+
+		location /kapouet {
+    		root /tmp/www
+		}
+ 		/kapouet/pouic/toto/ => /tmp/www/kapouet/pouic/toto/
+
+	* root : add location
+	* alias : replace location
+	* <path> : folder path
+	* <user_home> : user home path
+
+## turn on or off directory listing
+
+	syntax: autoindex on | off
+
+	Default: autoindex off
+	
+	Context: server, location
+
+## default file to answer if the request is a directory
+
+	syntax:
+		index <file_name> ...
+
+	default:
+		index index.html index.php
+
+	context:
+		server, location
+
+	Example:
+		index index.html index.php
+
+## execute CGI based on certain file extension (for Example .php)
+
+	syntax:
+		cgi <path>
+
+	default:
+		-
+
+	Context:
+		location
+
+	Example:
+		location .php {
+			cgi /cgi/php_cgi
+		}
+
+## make the route able to accept uploaded files and configure where it should be saved
+
+	syntax:
+		upload <path>
+
+	default: 
+		-
+
+	Context:
+		location
+
+	Example:
+		upload /tmp/upload
