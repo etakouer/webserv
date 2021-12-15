@@ -135,7 +135,8 @@ void Worker::send_client(int i, Socket_client * client_ptr)
 		return del_client(i, &client);
 	update_modif_list(client.fd, EVFILT_TIMER, EV_ADD | EV_ONESHOT,
 											NOTE_SECONDS, TO_SEND);
-	client.buffer_send.erase(0, size_send);
+	if (size_send != 0)
+		client.buffer_send.erase(0, size_send);
 	if (client.buffer_send.empty() && client.response.read_end)
 	{
 		if (client.closed || client.request.headers["connection"] == "close")
